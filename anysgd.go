@@ -47,7 +47,7 @@ func (s *SampleList) Slice(i, j int) anysgd.SampleList {
 }
 
 // GetSample gets a feed-forward training sample.
-func (s *SampleList) GetSample(i int) *anyff.Sample {
+func (s *SampleList) GetSample(i int) (*anyff.Sample, error) {
 	sample := s.Samples[i]
 	vector := make([]float64, 0, 1024*3)
 	for i := 0; i < 1024; i++ {
@@ -60,7 +60,7 @@ func (s *SampleList) GetSample(i int) *anyff.Sample {
 	return &anyff.Sample{
 		Input:  s.Creator.MakeVectorData(s.Creator.MakeNumericList(vector)),
 		Output: s.Creator.MakeVectorData(s.Creator.MakeNumericList(label)),
-	}
+	}, nil
 }
 
 func (s *SampleList) labelVector(i int) []float64 {
