@@ -17,6 +17,16 @@ type SampleList struct {
 	UseSuper bool
 }
 
+// NewSampleListAll creates a SampleList by combining all
+// of the batches.
+func NewSampleListAll(c anyvec.Creator, samples ...[]*Sample) *SampleList {
+	var s []*Sample
+	for _, x := range samples {
+		s = append(s, x...)
+	}
+	return &SampleList{Samples: s, Creator: c}
+}
+
 // Len returns the length of the sample list.
 func (s *SampleList) Len() int {
 	return len(s.Samples)
