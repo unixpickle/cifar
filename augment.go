@@ -18,9 +18,10 @@ func Augment(sample *Sample) *Sample {
 	}
 
 	// Vector from https://groups.google.com/forum/#!topic/lasagne-users/meCDNeA9Ud4.
-	colorAugment(&res.Red, 0.0148366)
-	colorAugment(&res.Green, 0.01253134)
-	colorAugment(&res.Blue, 0.01040762)
+	power := rand.NormFloat64()
+	colorAugment(&res.Red, 0.0148366*power)
+	colorAugment(&res.Green, 0.01253134*power)
+	colorAugment(&res.Blue, 0.01040762*power)
 
 	return &res
 }
@@ -35,8 +36,7 @@ func mirror(channel *[1024]byte) {
 	}
 }
 
-func colorAugment(channel *[1024]byte, coeff float64) {
-	amount := float64(coeff * rand.NormFloat64())
+func colorAugment(channel *[1024]byte, amount float64) {
 	for i, x := range channel {
 		num := amount + float64(x)/0xff
 		val := int(num * 0x100)
