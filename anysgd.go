@@ -16,6 +16,11 @@ type SampleList struct {
 	// If true, then the samples must be from CIFAR-100 and
 	// the super-classes will be used as labels.
 	UseSuper bool
+
+	// Augment indicates whether or not to use data
+	// augmentation.
+	// This is not used for Accuracy().
+	Augment bool
 }
 
 // NewSampleListAll creates a SampleList by combining all
@@ -44,12 +49,16 @@ func (s *SampleList) Slice(i, j int) anysgd.SampleList {
 		Samples:  append([]*Sample{}, s.Samples[i:j]...),
 		Creator:  s.Creator,
 		UseSuper: s.UseSuper,
+		Augment:  s.Augment,
 	}
 }
 
 // GetSample gets a feed-forward training sample.
 func (s *SampleList) GetSample(i int) (*anyff.Sample, error) {
 	sample := s.Samples[i]
+	if s.Augment {
+		sample = Augment(sample)
+	}
 	vector := make([]float64, 0, 1024*3)
 	for i := 0; i < 1024; i++ {
 		r, g, b := sample.Red[i], sample.Green[i], sample.Blue[i]
@@ -75,7 +84,9 @@ func (s *SampleList) Accuracy(l anynet.Layer, batchSize int) anyvec.Numeric {
 		if batchSize > s.Len()-i {
 			batchSize = s.Len() - i
 		}
-		b, _ := fetcher.Fetch(s.Slice(i, i+batchSize))
+		subSlice := s.Slice(i, i+batchSize).(*SampleList)
+		subSlice.Augment = false
+		b, _ := fetcher.Fetch(subSlice)
 		ins := b.(*anyff.Batch).Inputs
 		desired := b.(*anyff.Batch).Outputs.Output()
 		outs := l.Apply(ins, batchSize).Output()
