@@ -94,10 +94,10 @@ func (s *SampleList) Accuracy(l anynet.Layer, batchSize int) anyvec.Numeric {
 		mapper := anyvec.MapMax(outs, outs.Len()/batchSize)
 		maxes := s.Creator.MakeVector(desired.Len())
 		ones := s.Creator.MakeVector(batchSize)
-		ones.AddScaler(s.Creator.MakeNumeric(1))
+		ones.AddScalar(s.Creator.MakeNumeric(1))
 		mapper.MapTranspose(ones, maxes)
 
-		correctSum.AddScaler(maxes.Dot(desired))
+		correctSum.AddScalar(maxes.Dot(desired))
 	}
 	correctSum.Scale(s.Creator.MakeNumeric(1 / float64(s.Len())))
 	return anyvec.Sum(correctSum)
